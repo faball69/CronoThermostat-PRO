@@ -53,9 +53,9 @@ String sMonth[12] = { "Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "S
 struct stProgram {
 	int T[MAX_SEQ];  // in decimi di grado
 	int HM[MAX_SEQ]; // hhmm nei 16bit hh=partealta mm=partebassa
-} progs[MAX_PROGS] = {{{ 210, 195, 210, 195, 210, 195 }, { 0x071E, 0x091E, 0x0B00, 0x0D00, 0x0F00, 0x1700 }},
-                      {{ 210, 195, 210, 195, 195, 195 }, { 0x071E, 0x091E, 0x0F00, 0x1700, 0x0000, 0x0000 }},
-                      {{ 210, 195, 210, 195, 195, 195 }, { 0x051E, 0x0800, 0x0F00, 0x1700, 0x0000, 0x0000 }},
+} progs[MAX_PROGS] = {{{ 200, 190, 200, 190, 200, 190 }, { 0x071E, 0x091E, 0x0B00, 0x0D00, 0x0F00, 0x1700 }},
+                      {{ 200, 190, 200, 190, 190, 190 }, { 0x071E, 0x091E, 0x0F00, 0x1700, 0x0000, 0x0000 }},
+                      {{ 200, 190, 200, 190, 190, 190 }, { 0x051E, 0x0800, 0x0F00, 0x1700, 0x0000, 0x0000 }},
                       {{ 170, 170, 170, 170, 170, 170 }, { 0x0000, 0x173B, 0x0000, 0x0000, 0x0000, 0x0000 }}};
 ////////////////////////////////////////////////////////////////////////////////
 #define EEPROM_OFSD (sizeof(progs))
@@ -69,8 +69,10 @@ struct stForce {
 	int hForce;
 	unsigned long tFin;
 	int ofsTemp;
+  int maxTemp;
+  int hysteresisTemp;   // in °C/100
   bool bOFF;
-} forceData = { 0, 0, 0, false};
+} forceData = { 0, 0, -15, 220, 15, false};
 ////////////////////////////////////////////////////////////////////////////////
 int smValue = 0;
 bool bProgram = false;

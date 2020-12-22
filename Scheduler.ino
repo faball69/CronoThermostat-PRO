@@ -40,9 +40,11 @@ void scheduler(float tempNow) {
 		Serial.println(idProg);
 	}
   // controllo force functionality
+  float fmt=((float)(forceData.maxTemp))/10.0f;
+  float fht=((float)(forceData.hysteresisTemp))/100.0f;
   if(forceData.hForce) {
       if(forceData.tFin>now.get()) {
-        if(forceData.hForce>0 && hh>7 && hh<23) // forza ma non di notte
+        if(forceData.hForce>0 && hh>7 && hh<23 && ((tempNow<fmt && !bFire) || (tempNow<fmt+fht && bFire))) // forza ma non di notte e se supero maxtemp
           bFire=true;
         else
           bFire=false;
@@ -76,7 +78,7 @@ void scheduler(float tempNow) {
         Serial.print(" temp=");
   			Serial.println(setPtemp);
   		}
-			if((!bFire && tempNow<setPtemp) || (bFire && tempNow<(setPtemp+0.15f)))
+			if((!bFire && tempNow<setPtemp) || (bFire && tempNow<(setPtemp+fht)))
 				bFire=true;
 			else
 				bFire=false;
