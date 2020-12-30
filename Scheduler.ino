@@ -61,28 +61,47 @@ void scheduler(float tempNow) {
         saveData((byte*)&forceData, sizeof(forceData), EEPROM_OFSF);
       }
   }
-  // check sequences
-	for(int seq=0; seq<MAX_SEQ-1; seq++) {
-		int minI=(progs[idProg].HM[seq]>>8)*60+(progs[idProg].HM[seq]&0xFF);
-		int minF=(progs[idProg].HM[seq+1]>>8)*60+(progs[idProg].HM[seq+1]&0xFF);
-		if(minI<=minuteNow && (minuteNow<minF || minF==0)) { // trovata la seq in corso
-      float setPtemp=progs[idProg].T[seq];  // setpoint di temperatura da tenere in questa sequenza
-      setPtemp/=10.0;
-      if(DEBUG) {
-  			Serial.print("seq=");
-  			Serial.print(seq);
-  			Serial.print(" minI=");
-  			Serial.print(minI);
-        Serial.print(" minF=");
-  			Serial.print(minF);
-        Serial.print(" temp=");
-  			Serial.println(setPtemp);
-  		}
-			if((!bFire && tempNow<setPtemp) || (bFire && tempNow<(setPtemp+fht)))
-				bFire=true;
-			else
-				bFire=false;
+  else {
+    int i1, i2;
+    findNextCheckPoint(idProg, i1, i2);
+    float setPtemp = progs[idProg].T[i1]; // setpoint di temperatura da tenere in questa sequenza
+    setPtemp /= 10.0;
+    if(setPtemp>fmt)
+      setPtemp=fmt;
+    if ((!bFire && tempNow < setPtemp) || (bFire && tempNow < (setPtemp + fht)))
+      bFire = true;
+    else
+      bFire = false;
+
+  }
+}
+
+void findNextCheckPoint(int prg, int &i1, int &i2) {
+  i1=0; i2=1;
+  DateTime now = rtc.now(); //get the current date-time
+  int tp, tn=now.hour()*60+now.minute();
+  for(i2=0; i2<MAX_SEQ; i2++) {
+    tp=(progs[prg].HM[i2]>>8)*60+(progs[prg].HM[i2]&0xFF);
+    if(tp>tn || progs[prg].T[i2]==0)
       break;
-		}
-	}
+  }
+  if(i2==0)
+    i1=MAX_SEQ-1;
+  else if(i2==MAX_SEQ) {
+    i1=MAX_SEQ-1;
+    i2=0;
+  }
+  else {
+    i1=i2-1;
+    if(progs[prg].T[i2]==0)
+      i2=0;
+  }
+  if (DEBUG) {
+    Serial.print("i1=");
+    Serial.print(i1);
+    Serial.print(" i2=");
+    Serial.print(i2);
+    Serial.print(" temp=");
+    Serial.println(progs[prg].T[i1]);
+  }
 }
